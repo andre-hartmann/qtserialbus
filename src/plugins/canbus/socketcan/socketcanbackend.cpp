@@ -36,6 +36,10 @@
 
 #include "socketcanbackend.h"
 
+#include "libsocketcan.h"
+
+#include <QtSerialBus/qcanbusdevice.h>
+
 #include <QtCore/qdatastream.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qdiriterator.h>
@@ -149,12 +153,19 @@ QList<QCanBusDeviceInfo> SocketCanBackend::interfaces()
 SocketCanBackend::SocketCanBackend(const QString &name) :
     canSocketName(name)
 {
+    QString errorString;
+    libSocketCan = new LibSocketCan(&errorString);
+    if (Q_UNLIKELY(!errorString.isEmpty()))
+        qDebug("%ls", qUtf16Printable(errorString));
+
     resetConfigurations();
 }
 
 SocketCanBackend::~SocketCanBackend()
 {
     close();
+
+    delete libSocketCan;
 }
 
 void SocketCanBackend::resetConfigurations()
@@ -168,6 +179,8 @@ void SocketCanBackend::resetConfigurations()
                 QVariant::fromValue(QCanBusFrame::FrameErrors(QCanBusFrame::AnyError)));
     QCanBusDevice::setConfigurationParameter(
                 QCanBusDevice::CanFdKey, false);
+    QCanBusDevice::setConfigurationParameter(
+                QCanBusDevice::BitRateKey, 500000);
 }
 
 bool SocketCanBackend::open()
@@ -310,6 +323,13 @@ bool SocketCanBackend::applyConfigurationParameter(int key, const QVariant &valu
                      QCanBusDevice::CanBusError::ConfigurationError);
             break;
         }
+        success = true;
+        break;
+    }
+    case QCanBusDevice::BitRateKey:
+    {
+        const quint32 bitRate = value.toUInt();
+        libSocketCan->setBitrate(canSocketName, bitRate);
         success = true;
         break;
     }
