@@ -77,7 +77,7 @@ public:
             m_requestBuffer += m_serialPort->read(size);
 
             const QModbusSerialAdu adu(QModbusSerialAdu::Rtu, m_requestBuffer);
-            qCDebug(QT_MODBUS_LOW) << "(RTU server) Received ADU:" << adu.rawData().toHex();
+            qCDebug(QT_MODBUS_LOW, "(RTU server) Received ADU: %s", adu.rawData().toHex().constData());
 
             // Index                         -> description
             // Server address                -> 1 byte
@@ -90,8 +90,8 @@ public:
                 event |= QModbusCommEvent::ReceiveFlag::CurrentlyInListenOnlyMode;
 
             // We expect at least the server address, function code and CRC.
-            if (adu.rawSize() < 4) { // TODO: LRC should be 3 bytes.
-                qCWarning(QT_MODBUS) << "(RTU server) Incomplete ADU received, ignoring";
+            if (Q_UNLIKELY(adu.rawSize() < 4)) { // TODO: LRC should be 3 bytes.
+                qCWarning(QT_MODBUS, "(RTU server) Incomplete ADU received, ignoring");
 
                 // The quantity of CRC errors encountered by the remote device since its last
                 // restart, clear counters operation, or power-up. In case of a message
@@ -109,8 +109,8 @@ public:
             const int pduSizeWithoutFcode = QModbusRequest::calculateDataSize(adu.pdu());
 
             // server address byte + function code byte + PDU size + 2 bytes CRC
-            if ((pduSizeWithoutFcode < 0) || ((2 + pduSizeWithoutFcode + 2) != adu.rawSize())) {
-                qCWarning(QT_MODBUS) << "(RTU server) ADU does not match expected size, ignoring";
+            if (Q_UNLIKELY((pduSizeWithoutFcode < 0) || ((2 + pduSizeWithoutFcode + 2) != adu.rawSize()))) {
+                qCWarning(QT_MODBUS, "(RTU server) ADU does not match expected size, ignoring");
                 // The quantity of messages addressed to the remote device that it could not
                 // handle due to a character overrun condition, since its last restart, clear
                 // counters operation, or power-up. A character overrun is caused by data
@@ -125,7 +125,7 @@ public:
             // arrive, so clear the buffer. All new bytes are considered part of the next message.
             m_requestBuffer.resize(0);
 
-            if (!adu.matchingChecksum()) {
+            if (Q_UNLIKELY(!adu.matchingChecksum())) {
                 qCWarning(QT_MODBUS) << "(RTU server) Discarding request with wrong CRC, received:"
                                      << adu.checksum<quint16>() << ", calculated CRC:"
                                      << QModbusSerialAdu::calculateCRC(adu.data(), adu.size());
@@ -145,8 +145,8 @@ public:
                 // check if the server address matches ...
                 if (q->serverAddress() != adu.serverAddress()) {
                     // no, not our address! Ignore!
-                    qCDebug(QT_MODBUS) << "(RTU server) Wrong server address, expected"
-                        << q->serverAddress() << "got" << adu.serverAddress();
+                    qCDebug(QT_MODBUS, "(RTU server) Wrong server address, expected %d got %d",
+                            q->serverAddress(), adu.serverAddress());
                     return;
                 }
             } // else { Broadcast -> Server address will never match, deliberately ignore }
@@ -190,10 +190,10 @@ public:
             const QByteArray result = QModbusSerialAdu::create(QModbusSerialAdu::Rtu,
                                                                q->serverAddress(), response);
 
-            qCDebug(QT_MODBUS_LOW) << "(RTU server) Response ADU:" << result.toHex();
+            qCDebug(QT_MODBUS_LOW, "(RTU server) Response ADU: %s", result.toHex().constData());
 
-            if (!m_serialPort->isOpen()) {
-                qCDebug(QT_MODBUS) << "(RTU server) Requesting serial port has closed.";
+            if (Q_UNLIKELY(!m_serialPort->isOpen())) {
+                qCDebug(QT_MODBUS, "(RTU server) Requesting serial port has closed.");
                 q->setError(QModbusRtuSerialSlave::tr("Requesting serial port is closed"),
                             QModbusDevice::WriteError);
                 incrementCounter(QModbusServerPrivate::Counter::ServerNoResponse);
@@ -202,8 +202,8 @@ public:
             }
 
             int writtenBytes = m_serialPort->write(result);
-            if ((writtenBytes == -1) || (writtenBytes < result.size())) {
-                qCDebug(QT_MODBUS) << "(RTU server) Cannot write requested response to serial port.";
+            if (Q_UNLIKELY((writtenBytes == -1) || (writtenBytes < result.size()))) {
+                qCDebug(QT_MODBUS, "(RTU server) Cannot write requested response to serial port.");
                 q->setError(QModbusRtuSerialSlave::tr("Could not write response to client"),
                             QModbusDevice::WriteError);
                 incrementCounter(QModbusServerPrivate::Counter::ServerNoResponse);
@@ -269,8 +269,8 @@ public:
             if (error == QSerialPort::NoError)
                 return;
 
-            qCDebug(QT_MODBUS) << "(RTU server) QSerialPort error:" << error
-                               << (m_serialPort ? m_serialPort->errorString() : QString());
+            const QString errorString = m_serialPort ? m_serialPort->errorString() : QString();
+            qCDebug(QT_MODBUS, "(RTU server) QSerialPort error: %ls", qUtf16Printable(errorString));
 
             Q_Q(QModbusRtuSerialSlave);
 
@@ -308,7 +308,7 @@ public:
                 q->setError(QModbusDevice::tr("Unknown error."), QModbusDevice::UnknownError);
                 break;
             default:
-                qCDebug(QT_MODBUS) << "(RTU server) Unhandled QSerialPort error" << error;
+                qCDebug(QT_MODBUS, "(RTU server) Unhandled QSerialPort error %d", error);
                 break;
             }
         });

@@ -106,8 +106,8 @@ public:
             return true;
 
         // No, not our address! Ignore!
-        qCDebug(QT_MODBUS) << "(TCP server) Wrong server unit identifier address, expected"
-            << q->serverAddress() << "got" << unitId;
+        qCDebug(QT_MODBUS, "(TCP server) Wrong server unit identifier address, expected %d got %d",
+                q->serverAddress(), int(unitId));
         return false;
     }
 
@@ -141,11 +141,11 @@ public:
 
                 buffer->append(socket->readAll());
                 while (!buffer->isEmpty()) {
-                    qCDebug(QT_MODBUS_LOW).noquote() << "(TCP server) Read buffer: 0x"
-                        + buffer->toHex();
+                    qCDebug(QT_MODBUS_LOW, "(TCP server) Read buffer: 0x%s",
+                            buffer->toHex().constData());
 
-                    if (buffer->size() < mbpaHeaderSize) {
-                        qCDebug(QT_MODBUS) << "(TCP server) ADU too short. Waiting for more data.";
+                    if (Q_UNLIKELY(buffer->size() < mbpaHeaderSize)) {
+                        qCDebug(QT_MODBUS, "(TCP server) ADU too short. Waiting for more data.");
                         return;
                     }
 
@@ -162,8 +162,8 @@ public:
                     // Identifier and the PDU, so we remove on byte.
                     bytesPdu--;
 
-                    if (buffer->size() < mbpaHeaderSize + bytesPdu) {
-                        qCDebug(QT_MODBUS) << "(TCP server) PDU too short. Waiting for more data";
+                    if (Q_UNLIKELY(buffer->size() < mbpaHeaderSize + bytesPdu)) {
+                        qCDebug(QT_MODBUS, "(TCP server) PDU too short. Waiting for more data");
                         return;
                     }
 
@@ -186,16 +186,16 @@ public:
                     output << transactionId << protocolId << quint16(response.size() + 1)
                            << unitId << response;
 
-                    if (!socket->isOpen()) {
-                        qCDebug(QT_MODBUS) << "(TCP server) Requesting socket has closed.";
+                    if (Q_UNLIKELY(!socket->isOpen())) {
+                        qCDebug(QT_MODBUS, "(TCP server) Requesting socket has closed.");
                         forwardError(QModbusTcpServer::tr("Requesting socket is closed"),
                                      QModbusDevice::WriteError);
                         return;
                     }
 
                     int writtenBytes = socket->write(result);
-                    if (writtenBytes == -1 || writtenBytes < result.size()) {
-                        qCDebug(QT_MODBUS) << "(TCP server) Cannot write requested response to socket.";
+                    if (Q_UNLIKELY(writtenBytes == -1 || writtenBytes < result.size())) {
+                        qCDebug(QT_MODBUS, "(TCP server) Cannot write requested response to socket.");
                         forwardError(QModbusTcpServer::tr("Could not write response to client"),
                                      QModbusDevice::WriteError);
                     }
@@ -206,7 +206,7 @@ public:
                          [this](QAbstractSocket::SocketError /*sError*/) {
             Q_Q(QModbusTcpServer);
 
-            qCWarning(QT_MODBUS) << "(TCP server) Accept error";
+            qCWarning(QT_MODBUS, "(TCP server) Accept error");
             q->setError(m_tcpServer->errorString(), QModbusDevice::ConnectionError);
         });
     }

@@ -246,14 +246,14 @@ QModbusReply *QModbusClientPrivate::sendRequest(const QModbusRequest &request, i
 {
     Q_Q(QModbusClient);
 
-    if (!isOpen() || q->state() != QModbusDevice::ConnectedState) {
-        qCWarning(QT_MODBUS) << "(Client) Device is not connected";
+    if (Q_UNLIKELY(!isOpen() || q->state() != QModbusDevice::ConnectedState)) {
+        qCWarning(QT_MODBUS, "(Client) Device is not connected");
         q->setError(QModbusClient::tr("Device not connected."), QModbusDevice::ConnectionError);
         return nullptr;
     }
 
-    if (!request.isValid()) {
-        qCWarning(QT_MODBUS) << "(Client) Refuse to send invalid request.";
+    if (Q_UNLIKELY(!request.isValid())) {
+        qCWarning(QT_MODBUS, "(Client) Refuse to send invalid request.");
         q->setError(QModbusClient::tr("Invalid Modbus request."), QModbusDevice::ProtocolError);
         return nullptr;
     }

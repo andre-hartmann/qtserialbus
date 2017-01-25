@@ -80,7 +80,7 @@ public:
         });
 
         QObject::connect(m_socket, &QAbstractSocket::disconnected, [this]() {
-           qCDebug(QT_MODBUS)  << "(TCP client) Connection closed.";
+           qCDebug(QT_MODBUS, "(TCP client) Connection closed.");
            Q_Q(QModbusTcpClient);
            q->setState(QModbusDevice::UnconnectedState);
            cleanupTransactionStore();
@@ -102,12 +102,12 @@ public:
 
         QObject::connect(m_socket, &QIODevice::readyRead, [this](){
             responseBuffer += m_socket->read(m_socket->bytesAvailable());
-            qCDebug(QT_MODBUS_LOW) << "(TCP client) Response buffer:" << responseBuffer.toHex();
+            qCDebug(QT_MODBUS_LOW, "(TCP client) Response buffer: %s", responseBuffer.toHex().constData());
 
             while (!responseBuffer.isEmpty()) {
                 // can we read enough for Modbus ADU header?
-                if (responseBuffer.size() < mbpaHeaderSize) {
-                    qCDebug(QT_MODBUS_LOW) << "(TCP client) Modbus ADU not complete";
+                if (Q_UNLIKELY(responseBuffer.size() < mbpaHeaderSize)) {
+                    qCDebug(QT_MODBUS_LOW, "(TCP client) Modbus ADU not complete");
                     return;
                 }
 
@@ -219,8 +219,8 @@ public:
             });
             element.timer->start();
         } else {
-            qCWarning(QT_MODBUS) << "(TCP client) No response timeout timer for request with tId:"
-                << hex << tId << ". Expected timeout:" << m_responseTimeoutDuration;
+            qCWarning(QT_MODBUS, "(TCP client) No response timeout timer for request with tId: %x."
+                                 " Expected timeout: %d", tId, m_responseTimeoutDuration);
         }
         incrementTransactionId();
 

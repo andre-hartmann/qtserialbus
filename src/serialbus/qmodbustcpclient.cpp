@@ -97,8 +97,8 @@ bool QModbusTcpClient::open()
     if (!url.isValid()) {
         setError(tr("Invalid connection settings for TCP communication specified."),
             QModbusDevice::ConnectionError);
-        qCWarning(QT_MODBUS) << "(TCP client) Invalid host:" << url.host() << "or port:"
-            << url.port();
+        qCWarning(QT_MODBUS, "(TCP server) Invalid host: %ls or port: %d",
+                  qUtf16Printable(url.host()), url.port());
         return false;
     }
 
