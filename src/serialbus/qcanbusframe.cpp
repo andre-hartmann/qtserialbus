@@ -393,10 +393,14 @@ QString QCanBusFrame::toString() const
 
     if (type == RemoteRequestFrame) {
         result.append(QLatin1String("  Remote Request"));
-    } else if (!payload().isEmpty()) {
-        const QByteArray data = payload().toHex(' ').toUpper();
-        result.append(QLatin1String("  "));
-        result.append(QLatin1String(data));
+    } else {
+        if (!payload().isEmpty()) {
+            result.append(QLatin1Char(' '));
+            QByteArray data = payload().toHex().toUpper();
+            for (int i = 0; i < data.size(); i += 3)
+                data.insert(i, ' ');
+            result.append(QLatin1String(data));
+        }
     }
 
     return result;
