@@ -80,7 +80,7 @@ private slots:
     void cancel();
 
 private:
-    QString configurationValue(QCanBusDevice::ConfigurationKey key);
+    QString configurationValue(QCanBusDevice::ConfigurationKey key) const;
     void revertSettings();
     void updateSettings();
 

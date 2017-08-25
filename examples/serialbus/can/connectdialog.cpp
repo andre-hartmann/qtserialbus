@@ -94,7 +94,8 @@ void ConnectDialog::backendChanged(const QString &backend)
 {
     m_ui->interfaceListBox->clear();
     m_interfaces = QCanBus::instance()->availableDevices(backend);
-    for (const QCanBusDeviceInfo &info : qAsConst(m_interfaces))
+    const auto constInterfaces = m_interfaces;
+    for (const QCanBusDeviceInfo &info : m_interfaces)
         m_ui->interfaceListBox->addItem(info.name());
 }
 
@@ -103,7 +104,8 @@ void ConnectDialog::interfaceChanged(const QString &interface)
     m_ui->isVirtual->setChecked(false);
     m_ui->isFlexibleDataRateCapable->setChecked(false);
 
-    for (const QCanBusDeviceInfo &info : qAsConst(m_interfaces)) {
+    const auto constInterfaces = m_interfaces;
+    for (const QCanBusDeviceInfo &info : constInterfaces) {
         if (info.name() == interface) {
             m_ui->isVirtual->setChecked(info.isVirtual());
             m_ui->isFlexibleDataRateCapable->setChecked(info.hasFlexibleDataRate());
@@ -124,11 +126,11 @@ void ConnectDialog::cancel()
     reject();
 }
 
-QString ConnectDialog::configurationValue(QCanBusDevice::ConfigurationKey key)
+QString ConnectDialog::configurationValue(QCanBusDevice::ConfigurationKey key) const
 {
     QVariant result;
 
-    for (const ConfigurationItem &item : qAsConst(m_currentSettings.configurations)) {
+    for (const ConfigurationItem &item : m_currentSettings.configurations) {
         if (item.first == key) {
             result = item.second;
             break;
