@@ -508,8 +508,8 @@ bool TinyCanBackend::open()
             const QVariant param = configurationParameter(key);
             const bool success = d->setConfigurationParameter(key, param);
             if (Q_UNLIKELY(!success)) {
-                qWarning("Cannot apply parameter: %d with value: %ls",
-                         key, qUtf16Printable(param.toString()));
+                qWarning("Cannot apply parameter: %d with value: %s",
+                         key, qUtf8Printable(param.toString()));
             }
         }
     }

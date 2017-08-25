@@ -68,7 +68,7 @@ void DummyBackendV1::close()
 
 bool DummyBackendV1::writeFrame(const QCanBusFrame &data)
 {
-    qDebug("DummyBackendV1::writeFrame: %ls", qUtf16Printable(data.toString()));
+    qDebug("DummyBackendV1::writeFrame: %s", qUtf8Printable(data.toString()));
     return true;
 }
 

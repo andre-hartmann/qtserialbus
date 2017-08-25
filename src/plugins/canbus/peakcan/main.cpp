@@ -62,7 +62,7 @@ public:
     {
         QString errorReason;
         if (!PeakCanBackend::canCreate(&errorReason)) {
-            qWarning("%ls", qUtf16Printable(errorReason));
+            qWarning("%s", qUtf8Printable(errorReason));
             if (errorMessage)
                 *errorMessage = errorReason;
             return nullptr;

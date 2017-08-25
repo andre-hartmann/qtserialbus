@@ -263,7 +263,7 @@ void VectorCanBackendPrivate::setupChannel(const QString &interfaceName)
         }
     }
 
-    qCritical("Unable to parse the channel %ls", qUtf16Printable(interfaceName));
+    qCritical("Unable to parse the channel %s", qUtf8Printable(interfaceName));
 }
 
 void VectorCanBackendPrivate::setupDefaultConfigurations()
@@ -458,8 +458,8 @@ bool VectorCanBackend::open()
         const QVariant param = configurationParameter(key);
         const bool success = d->setConfigurationParameter(key, param);
         if (!success) {
-            qWarning("Cannot apply parameter: %d with value: %ls",
-                     key, qUtf16Printable(param.toString()));
+            qWarning("Cannot apply parameter: %d with value: %s",
+                     key, qUtf8Printable(param.toString()));
         }
     }
 
