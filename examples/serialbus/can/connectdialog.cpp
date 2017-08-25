@@ -95,7 +95,7 @@ void ConnectDialog::backendChanged(const QString &backend)
     m_ui->interfaceListBox->clear();
     m_interfaces = QCanBus::instance()->availableDevices(backend);
     const auto constInterfaces = m_interfaces;
-    for (const QCanBusDeviceInfo &info : m_interfaces)
+    for (const QCanBusDeviceInfo &info : constInterfaces)
         m_ui->interfaceListBox->addItem(info.name());
 }
 

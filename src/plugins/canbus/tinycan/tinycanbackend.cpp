@@ -109,7 +109,8 @@ static void DRV_CALLBACK_TYPE canRxEventCallback(quint32 index, TCanMsg *frame, 
     Q_UNUSED(count);
 
     QMutexLocker lock(&channelsGuard);
-    for (TinyCanBackendPrivate *p : qAsConst(*qChannels())) {
+    const auto constChannels = *qChannels();
+    for (TinyCanBackendPrivate *p : constChannels) {
         if (p->channelIndex == int(index)) {
             p->startRead();
             return;

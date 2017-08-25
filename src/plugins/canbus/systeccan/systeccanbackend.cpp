@@ -84,7 +84,8 @@ QList<QCanBusDeviceInfo> SystecCanBackend::interfaces()
     ::UcanEnumerateHardware(&ucanEnumCallback, &devices, false,
                                                 0, ~0, 0, ~0, 0, ~0);
 
-    for (const QString &s : qAsConst(devices))
+    const auto constDevices = devices;
+    for (const QString &s : constDevices)
         result.append(createDeviceInfo(s, false, false));
     return result;
 }
