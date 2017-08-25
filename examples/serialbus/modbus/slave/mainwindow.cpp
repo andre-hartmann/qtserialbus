@@ -283,7 +283,8 @@ void MainWindow::setupDeviceData()
     }
 
     bool ok;
-    for (QLineEdit *widget : qAsConst(registers)) {
+    const auto constRegisters = registers;
+    for (QLineEdit *widget : constRegisters) {
         if (widget->objectName().startsWith(QStringLiteral("inReg"))) {
             modbusDevice->setData(QModbusDataUnit::InputRegisters, widget->property("ID").toInt(),
                 widget->text().toInt(&ok, 16));
