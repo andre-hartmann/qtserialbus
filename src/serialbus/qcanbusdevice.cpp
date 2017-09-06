@@ -114,6 +114,14 @@ QT_BEGIN_NAMESPACE
                             \l QCanBusFrame::hasBitrateSwitch() flag at a higher data bitrate,
                             after the arbitration phase at the nominal bitrate is finished.
                             See also \c QCanBusDevice::BitRateKey
+    \value HardwareResetKey Resets the CAN controller from bus off state, if possible. If the
+                            value is -1, an immediate reset is performed. If the value is greater
+                            than zero, it is interpreted as milliseconds after which an automatic
+                            reset is performed when the controller enters bus off state. If the
+                            value is zero, the automatic reset function is disabled. Note: CAN
+                            controller resets disturb the running communication and may take up to
+                            one second to complete. Only call this function to recover from bus
+                            errors.
     \value UserKey          This key defines the range where custom keys start. Its most
                             common purpose is to permit platform-specific configuration
                             options.

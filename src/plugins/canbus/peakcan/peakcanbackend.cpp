@@ -329,6 +329,16 @@ bool PeakCanBackendPrivate::setConfigurationParameter(int key, const QVariant &v
     switch (key) {
     case QCanBusDevice::BitRateKey:
         return verifyBitRate(value.toInt());
+    case QCanBusDevice::HardwareResetKey: {
+        if (value.toInt() == -1) {
+            close();
+            open();
+        } else {
+            int autoReset = value.toInt() ? PCAN_PARAMETER_ON : PCAN_PARAMETER_OFF;
+            ::CAN_SetValue(channelIndex, PCAN_BUSOFF_AUTORESET, &autoReset, sizeof(autoReset));
+        }
+        return true;
+    }
     default:
         q->setError(PeakCanBackend::tr("Unsupported configuration key: %1").arg(key),
                     QCanBusDevice::ConfigurationError);

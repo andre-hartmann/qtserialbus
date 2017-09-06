@@ -227,6 +227,8 @@ bool TinyCanBackendPrivate::setConfigurationParameter(int key, const QVariant &v
     switch (key) {
     case QCanBusDevice::BitRateKey:
         return setBitRate(value.toInt());
+    case QCanBusDevice::HardwareResetKey:
+        return hardwareReset();
     default:
         q->setError(TinyCanBackend::tr("Unsupported configuration key: %1").arg(key),
                     QCanBusDevice::ConfigurationError);
@@ -393,7 +395,7 @@ void TinyCanBackendPrivate::startRead()
             } else {
                 if (status.CanStatus == CAN_STATUS_BUS_OFF) {
                     qWarning("CAN bus is in off state, trying to reset the bus");
-                    if (::CanSetMode(channelIndex, OP_CAN_RESET, CAN_CMD_NONE) < 0)
+                    if (!hardwareReset())
                         q->setError(systemErrorString(ret), QCanBusDevice::CanBusError::ReadError);
                 }
             }
@@ -452,6 +454,11 @@ void TinyCanBackendPrivate::cleanupDriver()
         ::CanSetEvents(EVENT_DISABLE_ALL);
         ::CanDownDriver();
     }
+}
+
+bool TinyCanBackendPrivate::hardwareReset()
+{
+    return ::CanSetMode(channelIndex, OP_CAN_RESET, CAN_CMD_NONE) >= 0;
 }
 
 bool TinyCanBackendPrivate::setBitRate(int bitrate)

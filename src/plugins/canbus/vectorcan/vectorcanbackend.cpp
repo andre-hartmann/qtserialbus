@@ -244,6 +244,9 @@ bool VectorCanBackendPrivate::setConfigurationParameter(int key, const QVariant 
     case QCanBusDevice::ReceiveOwnKey:
         transmitEcho = value.toBool();
         return true;
+    case QCanBusDevice::HardwareResetKey:
+        // TODO
+        return false;
     default:
         q->setError(VectorCanBackend::tr("Unsupported configuration key"),
                     QCanBusDevice::ConfigurationError);

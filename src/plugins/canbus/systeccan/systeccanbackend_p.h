@@ -94,6 +94,7 @@ public:
     void startWrite();
     void readAllReceivedMessages();
     bool verifyBitRate(int bitrate);
+    void hardwareReset();
 
     SystecCanBackend * const q_ptr;
 

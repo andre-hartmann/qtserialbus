@@ -75,6 +75,7 @@ public:
     void startRead();
     void startupDriver();
     void cleanupDriver();
+    bool hardwareReset();
 
     bool setBitRate(int bitrate);
 

@@ -333,6 +333,15 @@ bool SocketCanBackend::applyConfigurationParameter(int key, const QVariant &valu
         success = true;
         break;
     }
+    case QCanBusDevice::HardwareResetKey:
+    {
+        if (value.toInt() >= 0)
+            libSocketCan->setRestartMilliseconds(canSocketName, value.toUInt());
+        else
+            libSocketCan->restart(canSocketName);
+        success = true;
+        break;
+    }
     default:
         setError(tr("SocketCanBackend: No such configuration as %1 in SocketCanBackend").arg(key),
                  QCanBusDevice::CanBusError::ConfigurationError);

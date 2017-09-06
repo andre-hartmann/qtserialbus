@@ -236,6 +236,9 @@ bool SystecCanBackendPrivate::setConfigurationParameter(int key, const QVariant 
             return false;
         }
         return true;
+    case QCanBusDevice::HardwareResetKey:
+        q->hardwareReset();
+        return true;
     default:
         q->setError(SystecCanBackend::tr("Unsupported configuration key: %1").arg(key),
                     QCanBusDevice::ConfigurationError);
@@ -424,6 +427,11 @@ bool SystecCanBackendPrivate::verifyBitRate(int bitrate)
     return true;
 }
 
+void SystecCanBackendPrivate::hardwareReset()
+{
+    ::UcanResetCan(handle);
+}
+
 SystecCanBackend::SystecCanBackend(const QString &name, QObject *parent) :
     QCanBusDevice(parent),
     d_ptr(new SystecCanBackendPrivate(this))
@@ -521,6 +529,12 @@ QString SystecCanBackend::interpretErrorFrame(const QCanBusFrame &errorFrame)
     Q_UNUSED(errorFrame);
 
     return QString();
+}
+
+void SystecCanBackend::hardwareReset()
+{
+    Q_D(SystecCanBackend);
+    d->hardwareReset();
 }
 
 QT_END_NAMESPACE
