@@ -176,6 +176,13 @@ bool VectorCanBackendPrivate::open()
         }
     }
 
+    const quint8 outputMode = listenOnly ? XL_OUTPUT_MODE_SILENT : XL_OUTPUT_MODE_NORMAL;
+    const XLstatus outputModeStatus = ::xlCanSetChannelOutput(portHandle, channelMask, outputMode);
+    if (Q_UNLIKELY(outputModeStatus != XL_SUCCESS)) {
+        q->setError(systemErrorString(outputModeStatus), QCanBusDevice::CanBusError::ConfigurationError);
+        return false;
+    }
+
     {
         const XLstatus status = ::xlActivateChannel(portHandle, channelMask,
                                                     XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
@@ -247,6 +254,9 @@ bool VectorCanBackendPrivate::setConfigurationParameter(int key, const QVariant 
     case QCanBusDevice::HardwareResetKey:
         // TODO
         return false;
+    case QCanBusDevice::ListenOnlyKey:
+        listenOnly = value.toBool();
+        return true;
     default:
         q->setError(VectorCanBackend::tr("Unsupported configuration key"),
                     QCanBusDevice::ConfigurationError);

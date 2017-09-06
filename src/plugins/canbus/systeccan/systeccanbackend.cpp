@@ -171,11 +171,16 @@ bool SystecCanBackendPrivate::open()
 
     const int bitrate = q->configurationParameter(QCanBusDevice::BitRateKey).toInt();
     const bool receiveOwn = q->configurationParameter(QCanBusDevice::ReceiveOwnKey).toBool();
+    const bool listenOnly = q->configurationParameter(QCanBusDevice::ListenOnlyKey).toBool();
 
     tUcanInitCanParam param;
     ::memset(&param, 0, sizeof(param));
     param.m_dwSize = sizeof(param);
-    param.m_bMode  = receiveOwn ? kUcanModeTxEcho : kUcanModeNormal;
+    param.m_bMode  = kUcanModeNormal;
+    if (listenOnly)
+        param.m_bMode |= kUcanModeListenOnly;
+    if (receiveOwn)
+        param.m_bMode |= kUcanModeTxEcho;
     param.m_bOCR   = USBCAN_OCR_DEFAULT;
     param.m_dwACR  = USBCAN_ACR_ALL;
     param.m_dwAMR  = USBCAN_AMR_ALL;
@@ -238,6 +243,13 @@ bool SystecCanBackendPrivate::setConfigurationParameter(int key, const QVariant 
         return true;
     case QCanBusDevice::HardwareResetKey:
         q->hardwareReset();
+        return true;
+    case QCanBusDevice::ListenOnlyKey:
+        if (Q_UNLIKELY(q->state() != QCanBusDevice::UnconnectedState)) {
+            q->setError(SystecCanBackend::tr("Cannot configure listen-only for open device"),
+                        QCanBusDevice::ConfigurationError);
+            return false;
+        }
         return true;
     default:
         q->setError(SystecCanBackend::tr("Unsupported configuration key: %1").arg(key),

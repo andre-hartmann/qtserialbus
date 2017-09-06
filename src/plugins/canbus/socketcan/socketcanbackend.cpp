@@ -342,6 +342,11 @@ bool SocketCanBackend::applyConfigurationParameter(int key, const QVariant &valu
         success = true;
         break;
     }
+    case QCanBusDevice::ListenOnlyKey:
+    {
+        libSocketCan->setListenOnly(canSocketName, value.toBool());
+        success = true;
+    }
     default:
         setError(tr("SocketCanBackend: No such configuration as %1 in SocketCanBackend").arg(key),
                  QCanBusDevice::CanBusError::ConfigurationError);

@@ -85,6 +85,7 @@ public:
     VectorCanBackend * const q_ptr;
 
     bool transmitEcho = false;
+    bool listenOnly = false;
     long portHandle = XL_INVALID_PORTHANDLE;
     quint64 channelMask = 0;
     HANDLE readHandle = INVALID_HANDLE_VALUE;

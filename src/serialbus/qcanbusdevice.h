@@ -79,6 +79,7 @@ public:
         CanFdKey,
         DataBitRateKey,
         HardwareResetKey,
+        ListenOnlyKey,
         UserKey = 30
     };
     Q_ENUM(ConfigurationKey)

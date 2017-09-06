@@ -339,6 +339,15 @@ bool PeakCanBackendPrivate::setConfigurationParameter(int key, const QVariant &v
         }
         return true;
     }
+    case QCanBusDevice::ListenOnlyKey: {
+        int param = value.toInt();
+        const TPCANStatus st = ::CAN_SetValue(channelIndex, PCAN_LISTEN_ONLY, &param, sizeof(param));
+        if (Q_UNLIKELY(st != PCAN_ERROR_OK)) {
+            q->setError(systemErrorString(st), QCanBusDevice::ConfigurationError);
+            return false;
+        }
+        return true;
+    }
     default:
         q->setError(PeakCanBackend::tr("Unsupported configuration key: %1").arg(key),
                     QCanBusDevice::ConfigurationError);

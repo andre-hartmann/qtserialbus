@@ -122,6 +122,13 @@ QT_BEGIN_NAMESPACE
                             controller resets disturb the running communication and may take up to
                             one second to complete. Only call this function to recover from bus
                             errors.
+    \value ListenOnlyKey    Sets the CAN device to listen only-mode, if possible. In listen-only
+                            mode, this CAN device will not participate in bus communication and
+                            will not acknowledge correct frames. Therefore, at least two other
+                            nodes have to be connected to the CAN bus for stable communication.
+                            For most plugins this value has to be set before calling
+                            \l QCanBusDevice::connectDevice(). The expected value for this key
+                            is \c bool.
     \value UserKey          This key defines the range where custom keys start. Its most
                             common purpose is to permit platform-specific configuration
                             options.
